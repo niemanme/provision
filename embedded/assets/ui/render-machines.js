@@ -151,6 +151,7 @@ class Machines extends React.Component {
       $.getJSON("../api/v3/machines", data => {
 
         // add get bootenvs from the api and update the state
+        // header Authorization:Bearer [string]
         $.getJSON("../api/v3/bootenvs", data2 => {
           for(var key in data2) {
             if (data2[key].Available)
