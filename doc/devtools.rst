@@ -47,10 +47,22 @@ Once you've got the code and assets once, you can repeat the process from the pr
 
 The generate step is only required when you are changing the embedded assets in the `embedded/assets/` directories.
 
+.. _rs_dev_paths:
 
+Dev Data Locations
+------------------
 
-Serving UI from File System
----------------------------
+When running a dev environment, override the default system storage locations with relative paths: `
+
+  ::
+
+    cd test-data
+    sudo ../rocket-skates --static-ip=[my IP] --file-root=`pwd`/tftpboot --data-root=./digitalrebar
+
+.. _rs_dev_ui:
+
+Dev UI (serving UI from File System)
+------------------------------------
 
 When working on the Rocket Skates UI, you can skip the generate steps by using the `--dev-ui` flag.  Generally, this is started using `--dev-ui ./embedded/assets/ui`
 
