@@ -343,4 +343,4 @@ class Machines extends React.Component {
   }
 }
 
-ReactDOM.render(<Machines />, machines);
+//ReactDOM.render(<Machines />, machines);
