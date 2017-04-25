@@ -221,6 +221,31 @@ type Subnet struct {
 	sn             *net.IPNet
 }
 
+func subnetIndexes(u []store.KeySaver) []Index {
+	s := AsSubnets(u)
+	return []Index{
+		{Key: "Name", less: func(i, j int) bool { return s[i].Name < s[j].Name }},
+		{Key: "Strategy", less: func(i, j int) bool { return s[i].Strategy < s[j].Strategy }},
+		{Key: "Subnet", less: func(i, j int) bool {
+			a, _, errA := net.ParseCIDR(s[i].Subnet)
+			b, _, errB := net.ParseCIDR(s[j].Subnet)
+			if errA != nil || errB != nil {
+				s[i].p.Logger.Panicf("Illegal Subnets '%s', '%s'", s[i].Subnet, s[j].Subnet)
+			}
+			n, o := big.Int{}, big.Int{}
+			n.SetBytes(a.To16())
+			o.SetBytes(b.To16())
+			return n.Cmp(&o) == -1
+		}},
+		{Key: "NextServer", less: func(i, j int) bool {
+			n, o := big.Int{}, big.Int{}
+			n.SetBytes(s[i].NextServer.To16())
+			o.SetBytes(s[j].NextServer.To16())
+			return n.Cmp(&o) == -1
+		}},
+	}
+}
+
 func (s *Subnet) subnet() *net.IPNet {
 	if s.sn != nil {
 		return s.sn

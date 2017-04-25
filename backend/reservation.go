@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"math/big"
 	"net"
 
 	"github.com/digitalrebar/digitalrebar/go/common/store"
@@ -32,6 +33,26 @@ type Reservation struct {
 	// required: true
 	Strategy string
 	p        *DataTracker
+}
+
+func reservationIndexes(s []store.KeySaver) []Index {
+	r := AsReservations(s)
+	return []Index{
+		{Key: "Addr", less: func(i, j int) bool {
+			n, o := big.Int{}, big.Int{}
+			n.SetBytes(r[i].Addr.To16())
+			o.SetBytes(r[j].Addr.To16())
+			return n.Cmp(&o) == -1
+		}},
+		{Key: "Token", less: func(i, j int) bool { return r[i].Token < r[j].Token }},
+		{Key: "Strategy", less: func(i, j int) bool { return r[i].Strategy < r[j].Strategy }},
+		{Key: "NextServer", less: func(i, j int) bool {
+			n, o := big.Int{}, big.Int{}
+			n.SetBytes(r[i].NextServer.To16())
+			o.SetBytes(r[j].NextServer.To16())
+			return n.Cmp(&o) == -1
+		}},
+	}
 }
 
 func (r *Reservation) Prefix() string {

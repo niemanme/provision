@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"math/big"
 	"net"
 	"path"
 	"strings"
@@ -58,6 +59,21 @@ type Machine struct {
 	// used during AfterSave() and AfterRemove() to handle boot environment changes.
 	toRemove renderers
 	toRender renderers
+}
+
+func machineIndexes(s []store.KeySaver) []Index {
+	m := AsMachines(s)
+	return []Index{
+		{Key: "Uuid", less: func(i, j int) bool { return m[i].Uuid.String() < m[j].Uuid.String() }},
+		{Key: "Name", less: func(i, j int) bool { return m[i].Name < m[j].Name }},
+		{Key: "BootEnv", less: func(i, j int) bool { return m[i].BootEnv < m[j].BootEnv }},
+		{Key: "Address", less: func(i, j int) bool {
+			k, l := big.Int{}, big.Int{}
+			k.SetBytes(m[i].Address.To16())
+			l.SetBytes(m[j].Address.To16())
+			return k.Cmp(&l) == -1
+		}},
+	}
 }
 
 func (n *Machine) Backend() store.SimpleStore {

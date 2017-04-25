@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"math/big"
 	"net"
 	"time"
 
@@ -45,6 +46,21 @@ type Lease struct {
 	Strategy string
 
 	p *DataTracker
+}
+
+func leaseIndexes(s []store.KeySaver) []Index {
+	l := AsLeases(s)
+	return []Index{
+		{Key: "Addr", less: func(i, j int) bool {
+			n, o := big.Int{}, big.Int{}
+			n.SetBytes(l[i].Addr.To16())
+			o.SetBytes(l[j].Addr.To16())
+			return n.Cmp(&o) == -1
+		}},
+		{Key: "Token", less: func(i, j int) bool { return l[i].Token < l[j].Token }},
+		{Key: "Strategy", less: func(i, j int) bool { return l[i].Strategy < l[j].Strategy }},
+		{Key: "ExpireTime", less: func(i, j int) bool { return l[i].ExpireTime.Before(l[j].ExpireTime) }},
+	}
 }
 
 func (l *Lease) Prefix() string {

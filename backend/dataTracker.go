@@ -58,6 +58,20 @@ type followUpDeleter interface {
 	followUpDelete()
 }
 
+// Index declares a struct field that can be indexed for a given
+// Model, along with the function that should be used to sort things
+// in key order.
+//
+// TODO
+// Make indexes keep a copy of the []store.KeySaver they are indexing.
+// Add methods on the index that are responsible for actually sorting
+// and filtering, and a method to extract the so-sorted and filtered set of keySavers.
+// Add stuff to []store.KeySaver to handle basic pagination stuff.
+type Index struct {
+	Key  string
+	less func(int, int) bool
+}
+
 // dtobjs is an in-memory cache of all the objects we could
 // reference. The implementation of this may need to change from
 // storing a slice of things to a more elaborate datastructure at some
@@ -90,7 +104,7 @@ func (dt *dtobjs) find(key string) (int, bool) {
 func (dt *dtobjs) subset(lower, upper func(string) bool) []store.KeySaver {
 	i := sort.Search(len(dt.d), func(i int) bool { return lower(dt.d[i].Key()) })
 	j := sort.Search(len(dt.d), func(i int) bool { return upper(dt.d[i].Key()) })
-	if i == len(dt.d) {
+	if i == j {
 		return []store.KeySaver{}
 	}
 	res := make([]store.KeySaver, j-i)
@@ -169,7 +183,6 @@ type dtSetter interface {
 // a dataTracker.
 type DataTracker struct {
 	FileRoot            string
-	CommandURL          string
 	OurAddress          string
 	StaticPort, ApiPort int
 	Logger              *log.Logger
@@ -763,6 +776,20 @@ func (p *DataTracker) GetToken(tokenString string) (*DrpCustomClaims, error) {
 
 func (p *DataTracker) SealClaims(claims *DrpCustomClaims) (string, error) {
 	return claims.Seal(p.tokenManager)
+}
+
+func (p *DataTracker) Backup() ([]byte, error) {
+	keys := make([]string, len(p.objs))
+	for k := range p.objs {
+		keys = append(keys, k)
+	}
+	_, unlocker := p.lockEnts(keys...)
+	defer unlocker()
+	res := map[string][]store.KeySaver{}
+	for _, k := range keys {
+		res[k] = p.objs[k].d
+	}
+	return json.Marshal(res)
 }
 
 func (p *DataTracker) NewToken(id string, ttl int, scope, action, specific string) (string, error) {

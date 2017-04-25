@@ -154,6 +154,15 @@ type BootEnv struct {
 	tmplMux        sync.Mutex
 }
 
+func bootEnvIndexes(s []store.KeySaver) []Index {
+	b := AsBootEnvs(s)
+	return []Index{
+		{Key: "Name", less: func(i, j int) bool { return b[i].Name < b[j].Name }},
+		{Key: "Available", less: func(i, j int) bool { return !b[i].Available && b[j].Available }},
+		{Key: "OnlyUnknown", less: func(i, j int) bool { return !b[i].OnlyUnknown && b[j].OnlyUnknown }},
+	}
+}
+
 func (b *BootEnv) Backend() store.SimpleStore {
 	return b.p.getBackend(b)
 }
