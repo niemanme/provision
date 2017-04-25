@@ -62,17 +62,35 @@ type Machine struct {
 }
 
 func machineIndexes(s []store.KeySaver) []Index {
-	m := AsMachines(s)
+	m := make([]store.KeySaver, len(s))
+	copy(m, s)
+	fix := AsMachine
 	return []Index{
-		{Key: "Uuid", less: func(i, j int) bool { return m[i].Uuid.String() < m[j].Uuid.String() }},
-		{Key: "Name", less: func(i, j int) bool { return m[i].Name < m[j].Name }},
-		{Key: "BootEnv", less: func(i, j int) bool { return m[i].BootEnv < m[j].BootEnv }},
-		{Key: "Address", less: func(i, j int) bool {
-			k, l := big.Int{}, big.Int{}
-			k.SetBytes(m[i].Address.To16())
-			l.SetBytes(m[j].Address.To16())
-			return k.Cmp(&l) == -1
-		}},
+		{
+			Key:  "Uuid",
+			less: func(i, j store.KeySaver) bool { return fix(i).Uuid.String() < fix(j).Uuid.String() },
+			objs: m,
+		},
+		{
+			Key:  "Name",
+			less: func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name },
+			objs: m,
+		},
+		{
+			Key:  "BootEnv",
+			less: func(i, j store.KeySaver) bool { return fix(i).BootEnv < fix(j).BootEnv },
+			objs: m,
+		},
+		{
+			Key: "Address",
+			less: func(i, j store.KeySaver) bool {
+				k, l := big.Int{}, big.Int{}
+				k.SetBytes(fix(i).Address.To16())
+				l.SetBytes(fix(j).Address.To16())
+				return k.Cmp(&l) == -1
+			},
+			objs: m,
+		},
 	}
 }
 

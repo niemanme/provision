@@ -222,27 +222,45 @@ type Subnet struct {
 }
 
 func subnetIndexes(u []store.KeySaver) []Index {
-	s := AsSubnets(u)
+	s := make([]store.KeySaver, len(u))
+	copy(s, u)
+	fix := AsSubnet
 	return []Index{
-		{Key: "Name", less: func(i, j int) bool { return s[i].Name < s[j].Name }},
-		{Key: "Strategy", less: func(i, j int) bool { return s[i].Strategy < s[j].Strategy }},
-		{Key: "Subnet", less: func(i, j int) bool {
-			a, _, errA := net.ParseCIDR(s[i].Subnet)
-			b, _, errB := net.ParseCIDR(s[j].Subnet)
-			if errA != nil || errB != nil {
-				s[i].p.Logger.Panicf("Illegal Subnets '%s', '%s'", s[i].Subnet, s[j].Subnet)
-			}
-			n, o := big.Int{}, big.Int{}
-			n.SetBytes(a.To16())
-			o.SetBytes(b.To16())
-			return n.Cmp(&o) == -1
-		}},
-		{Key: "NextServer", less: func(i, j int) bool {
-			n, o := big.Int{}, big.Int{}
-			n.SetBytes(s[i].NextServer.To16())
-			o.SetBytes(s[j].NextServer.To16())
-			return n.Cmp(&o) == -1
-		}},
+		{
+			Key:  "Name",
+			less: func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name },
+			objs: s,
+		},
+		{
+			Key:  "Strategy",
+			less: func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy },
+			objs: s,
+		},
+		{
+			Key: "Subnet",
+			less: func(i, j store.KeySaver) bool {
+				a, _, errA := net.ParseCIDR(fix(i).Subnet)
+				b, _, errB := net.ParseCIDR(fix(j).Subnet)
+				if errA != nil || errB != nil {
+					fix(i).p.Logger.Panicf("Illegal Subnets '%s', '%s'", fix(i).Subnet, fix(j).Subnet)
+				}
+				n, o := big.Int{}, big.Int{}
+				n.SetBytes(a.To16())
+				o.SetBytes(b.To16())
+				return n.Cmp(&o) == -1
+			},
+			objs: s,
+		},
+		{
+			Key: "NextServer",
+			less: func(i, j store.KeySaver) bool {
+				n, o := big.Int{}, big.Int{}
+				n.SetBytes(fix(i).NextServer.To16())
+				o.SetBytes(fix(j).NextServer.To16())
+				return n.Cmp(&o) == -1
+			},
+			objs: s,
+		},
 	}
 }
 

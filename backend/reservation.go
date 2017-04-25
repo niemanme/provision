@@ -36,22 +36,39 @@ type Reservation struct {
 }
 
 func reservationIndexes(s []store.KeySaver) []Index {
-	r := AsReservations(s)
+	r := make([]store.KeySaver, len(s))
+	copy(r, s)
+	fix := AsReservation
 	return []Index{
-		{Key: "Addr", less: func(i, j int) bool {
-			n, o := big.Int{}, big.Int{}
-			n.SetBytes(r[i].Addr.To16())
-			o.SetBytes(r[j].Addr.To16())
-			return n.Cmp(&o) == -1
-		}},
-		{Key: "Token", less: func(i, j int) bool { return r[i].Token < r[j].Token }},
-		{Key: "Strategy", less: func(i, j int) bool { return r[i].Strategy < r[j].Strategy }},
-		{Key: "NextServer", less: func(i, j int) bool {
-			n, o := big.Int{}, big.Int{}
-			n.SetBytes(r[i].NextServer.To16())
-			o.SetBytes(r[j].NextServer.To16())
-			return n.Cmp(&o) == -1
-		}},
+		{Key: "Addr",
+			less: func(i, j store.KeySaver) bool {
+				n, o := big.Int{}, big.Int{}
+				n.SetBytes(fix(i).Addr.To16())
+				o.SetBytes(fix(j).Addr.To16())
+				return n.Cmp(&o) == -1
+			},
+			objs: r,
+		},
+		{
+			Key:  "Token",
+			less: func(i, j store.KeySaver) bool { return fix(i).Token < fix(j).Token },
+			objs: r,
+		},
+		{
+			Key:  "Strategy",
+			less: func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy },
+			objs: r,
+		},
+		{
+			Key: "NextServer",
+			less: func(i, j store.KeySaver) bool {
+				n, o := big.Int{}, big.Int{}
+				n.SetBytes(fix(i).NextServer.To16())
+				o.SetBytes(fix(j).NextServer.To16())
+				return n.Cmp(&o) == -1
+			},
+			objs: r,
+		},
 	}
 }
 

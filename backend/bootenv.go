@@ -155,11 +155,25 @@ type BootEnv struct {
 }
 
 func bootEnvIndexes(s []store.KeySaver) []Index {
-	b := AsBootEnvs(s)
+	b := make([]store.KeySaver, len(s))
+	copy(b, s)
+	fix := AsBootEnv
 	return []Index{
-		{Key: "Name", less: func(i, j int) bool { return b[i].Name < b[j].Name }},
-		{Key: "Available", less: func(i, j int) bool { return !b[i].Available && b[j].Available }},
-		{Key: "OnlyUnknown", less: func(i, j int) bool { return !b[i].OnlyUnknown && b[j].OnlyUnknown }},
+		{
+			Key:  "Name",
+			less: func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name },
+			objs: b,
+		},
+		{
+			Key:  "Available",
+			less: func(i, j store.KeySaver) bool { return !fix(i).Available && fix(j).Available },
+			objs: b,
+		},
+		{
+			Key:  "OnlyUnknown",
+			less: func(i, j store.KeySaver) bool { return !fix(i).OnlyUnknown && fix(j).OnlyUnknown },
+			objs: b,
+		},
 	}
 }
 
