@@ -29,6 +29,13 @@ type Profile struct {
 	p *DataTracker
 }
 
+func profileIndexes() []*Index {
+	fix := AsProfile
+	return []*Index{
+		NewIndex("Name", func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name }),
+	}
+}
+
 func (p *Profile) Backend() store.SimpleStore {
 	return p.p.getBackend(p)
 }

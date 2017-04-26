@@ -12,6 +12,12 @@ type Pref struct {
 	Val  string
 }
 
+func prefIndexes() []*Index {
+	return []*Index{
+		NewIndex("Name", func(i, j store.KeySaver) bool { return AsPref(i).Name < AsPref(j).Name }),
+	}
+}
+
 func (p *Pref) Prefix() string {
 	return "preferences"
 }

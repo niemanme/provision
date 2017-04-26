@@ -61,36 +61,19 @@ type Machine struct {
 	toRender renderers
 }
 
-func machineIndexes(s []store.KeySaver) []Index {
-	m := make([]store.KeySaver, len(s))
-	copy(m, s)
+func machineIndexes() []*Index {
 	fix := AsMachine
-	return []Index{
-		{
-			Key:  "Uuid",
-			less: func(i, j store.KeySaver) bool { return fix(i).Uuid.String() < fix(j).Uuid.String() },
-			objs: m,
-		},
-		{
-			Key:  "Name",
-			less: func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name },
-			objs: m,
-		},
-		{
-			Key:  "BootEnv",
-			less: func(i, j store.KeySaver) bool { return fix(i).BootEnv < fix(j).BootEnv },
-			objs: m,
-		},
-		{
-			Key: "Address",
-			less: func(i, j store.KeySaver) bool {
+	return []*Index{
+		NewIndex("Uuid", func(i, j store.KeySaver) bool { return fix(i).Uuid.String() < fix(j).Uuid.String() }),
+		NewIndex("Name", func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name }),
+		NewIndex("BootEnv", func(i, j store.KeySaver) bool { return fix(i).BootEnv < fix(j).BootEnv }),
+		NewIndex("Address",
+			func(i, j store.KeySaver) bool {
 				k, l := big.Int{}, big.Int{}
 				k.SetBytes(fix(i).Address.To16())
 				l.SetBytes(fix(j).Address.To16())
 				return k.Cmp(&l) == -1
-			},
-			objs: m,
-		},
+			}),
 	}
 }
 

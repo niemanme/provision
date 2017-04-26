@@ -27,6 +27,13 @@ type Template struct {
 	p        *DataTracker
 }
 
+func templateIndexes() []*Index {
+	fix := AsTemplate
+	return []*Index{
+		NewIndex("ID", func(i, j store.KeySaver) bool { return fix(i).ID < fix(j).ID }),
+	}
+}
+
 func (t *Template) Prefix() string {
 	return "templates"
 }

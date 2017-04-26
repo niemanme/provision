@@ -154,26 +154,12 @@ type BootEnv struct {
 	tmplMux        sync.Mutex
 }
 
-func bootEnvIndexes(s []store.KeySaver) []Index {
-	b := make([]store.KeySaver, len(s))
-	copy(b, s)
+func bootEnvIndexes() []*Index {
 	fix := AsBootEnv
-	return []Index{
-		{
-			Key:  "Name",
-			less: func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name },
-			objs: b,
-		},
-		{
-			Key:  "Available",
-			less: func(i, j store.KeySaver) bool { return !fix(i).Available && fix(j).Available },
-			objs: b,
-		},
-		{
-			Key:  "OnlyUnknown",
-			less: func(i, j store.KeySaver) bool { return !fix(i).OnlyUnknown && fix(j).OnlyUnknown },
-			objs: b,
-		},
+	return []*Index{
+		NewIndex("Name", func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name }),
+		NewIndex("Available", func(i, j store.KeySaver) bool { return !fix(i).Available && fix(j).Available }),
+		NewIndex("OnlyUnknown", func(i, j store.KeySaver) bool { return !fix(i).OnlyUnknown && fix(j).OnlyUnknown }),
 	}
 }
 

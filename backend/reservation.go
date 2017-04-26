@@ -35,40 +35,25 @@ type Reservation struct {
 	p        *DataTracker
 }
 
-func reservationIndexes(s []store.KeySaver) []Index {
-	r := make([]store.KeySaver, len(s))
-	copy(r, s)
+func reservationIndexes() []*Index {
 	fix := AsReservation
-	return []Index{
-		{Key: "Addr",
-			less: func(i, j store.KeySaver) bool {
+	return []*Index{
+		NewIndex("Addr",
+			func(i, j store.KeySaver) bool {
 				n, o := big.Int{}, big.Int{}
 				n.SetBytes(fix(i).Addr.To16())
 				o.SetBytes(fix(j).Addr.To16())
 				return n.Cmp(&o) == -1
-			},
-			objs: r,
-		},
-		{
-			Key:  "Token",
-			less: func(i, j store.KeySaver) bool { return fix(i).Token < fix(j).Token },
-			objs: r,
-		},
-		{
-			Key:  "Strategy",
-			less: func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy },
-			objs: r,
-		},
-		{
-			Key: "NextServer",
-			less: func(i, j store.KeySaver) bool {
+			}),
+		NewIndex("Token", func(i, j store.KeySaver) bool { return fix(i).Token < fix(j).Token }),
+		NewIndex("Strategy", func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy }),
+		NewIndex("NextServer",
+			func(i, j store.KeySaver) bool {
 				n, o := big.Int{}, big.Int{}
 				n.SetBytes(fix(i).NextServer.To16())
 				o.SetBytes(fix(j).NextServer.To16())
 				return n.Cmp(&o) == -1
-			},
-			objs: r,
-		},
+			}),
 	}
 }
 

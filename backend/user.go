@@ -23,6 +23,13 @@ func (u *User) Prefix() string {
 	return "users"
 }
 
+func userTemplates() []*Index {
+	fix := AsUser
+	return []*Index{
+		NewIndex("Name", func(i, j store.KeySaver) bool { return fix(i).Name < fix(j).Name }),
+	}
+}
+
 func (u *User) Key() string {
 	return u.Name
 }

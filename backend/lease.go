@@ -48,36 +48,19 @@ type Lease struct {
 	p *DataTracker
 }
 
-func leaseIndexes(s []store.KeySaver) []Index {
-	l := make([]store.KeySaver, len(s))
-	copy(l, s)
+func leaseIndexes() []*Index {
 	fix := AsLease
-	return []Index{
-		{
-			Key: "Addr",
-			less: func(i, j store.KeySaver) bool {
+	return []*Index{
+		NewIndex("Addr",
+			func(i, j store.KeySaver) bool {
 				n, o := big.Int{}, big.Int{}
 				n.SetBytes(fix(i).Addr.To16())
 				o.SetBytes(fix(j).Addr.To16())
 				return n.Cmp(&o) == -1
-			},
-			objs: l,
-		},
-		{
-			Key:  "Token",
-			less: func(i, j store.KeySaver) bool { return fix(i).Token < fix(j).Token },
-			objs: l,
-		},
-		{
-			Key:  "Strategy",
-			less: func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy },
-			objs: l,
-		},
-		{
-			Key:  "ExpireTime",
-			less: func(i, j store.KeySaver) bool { return fix(i).ExpireTime.Before(fix(j).ExpireTime) },
-			objs: l,
-		},
+			}),
+		NewIndex("Token", func(i, j store.KeySaver) bool { return fix(i).Token < fix(j).Token }),
+		NewIndex("Strategy", func(i, j store.KeySaver) bool { return fix(i).Strategy < fix(j).Strategy }),
+		NewIndex("ExpireTime", func(i, j store.KeySaver) bool { return fix(i).ExpireTime.Before(fix(j).ExpireTime) }),
 	}
 }
 
