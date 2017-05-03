@@ -50,8 +50,6 @@ type ProgOpts struct {
 	TftpPort            int    `long:"tftp-port" description:"Port for the TFTP server to listen on" default:"69"`
 	ApiPort             int    `long:"api-port" description:"Port for the API server to listen on" default:"8092"`
 	DhcpPort            int    `long:"dhcp-port" description:"Port for the DHCP server to listen on" default:"67"`
-	UnknownTokenTimeout int    `long:"unknown-token-timeout" description:"The default timeout in seconds for the machine create authorization token" default:"600"`
-	KnownTokenTimeout   int    `long:"known-token-timeout" description:"The default timeout in seconds for the machine update authorization token" default:"3600"`
 	BackEndType         string `long:"backend" description:"Storage backend to use. Can be either 'consul' or 'directory'" default:"directory"`
 	DataRoot            string `long:"data-root" description:"Location we should store runtime information in" default:"/var/lib/dr-provision"`
 	OurAddress          string `long:"static-ip" description:"IP address to advertise for the static HTTP file server" default:"192.168.124.11"`
