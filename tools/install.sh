@@ -144,6 +144,10 @@ if [[ $(uname -m) == x86_64 ]] ; then
         family=amd64
 fi
 
+if [[ $(uname -m) == arm ]] ; then
+        family=arm
+fi
+
 case $(uname -s) in
     Darwin)
         binpath="bin/darwin/$family"
