@@ -144,7 +144,7 @@ if [[ $(uname -m) == x86_64 ]] ; then
         family=amd64
 fi
 
-if [[ $(uname -m) == arm ]] ; then
+if [[ $(uname -m) == armv71 ]] ; then
         family=arm
 fi
 
