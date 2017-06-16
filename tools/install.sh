@@ -146,6 +146,7 @@ fi
 
 if [[ $(uname -m) == armv71 ]] ; then
         family=arm
+	echo "arm chosen at some point"
 fi
 
 case $(uname -s) in
