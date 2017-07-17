@@ -256,6 +256,43 @@ var subnetDestroyTooManyArgErrorString string = "Error: drpcli subnets destroy [
 var subnetDestroyJohnString string = "Deleted subnet john\n"
 var subnetDestroyMissingJohnString string = "Error: subnets: DELETE john: Not Found\n\n"
 
+
+var subnetRangeNoArgErrorString string ="Error: subnet range [subnetName] [startIP] [endIP] requires 3 arguments"
+var subnetRangeTooManyArgErrorString string ="Error: subnet range [subnetName] [startIP] [endIP] requires 3 arguments"
+var subnetRangeIPSuccessString string= "startIP: 1.24.36.7\nendIP: 1.24.36.16"
+var subnetRangeIPFailureString string= "error: 777.98.42.1234 is not a valid IPv4"
+
+
+var subnetSubnetNoArgErrorString string ="Error: subnet subnet [subnetName] [subnet CIDR] requires 2 arguments"
+var subnetSubnetTooManyArgErrorString string ="Error: subnet subnet [subnetName] [subnet CIDR] requires 2 arguments"
+var subnetSubnetCIDRSuccessString="10.0.0.0/24\n"
+var subnetSubnetCIDRFailureString="Error: 1111.11.2223.544/66666 is not a valid subnet CIDR"
+
+var subnetStrategyNoArgErrorString string ="Error: subnet strategy [subnetName] [MAC] requires 2 arguments"
+var subnetStrategyTooManyArgErrorString string ="Error: subnet strategy [subnetName] [MAC] requires 2 arguments"
+var subnetStrategyMacSuccessString string ="a3:b3:51:66:7e:11\n"
+
+var subnetNextserverNoArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
+var subnetNextserverTooManyArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
+var subnetNextserverIPSuccess string="1.24.36.16\n"
+var subnetNextserverIPFailure string="Error: 1.1.999.999 is not a valid IPv4"
+
+var subnetLeasetimesNoArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
+var subnetLeasetimesTooManyArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
+var subnetLeasetimesSuccessString string ="Active Lease Times=32\nReserved Lease Times=55\n"
+var subnetLeasetimesIntFailureString string="Error: 4x5 could not be read as a number"
+
+var subnetSetNoArgErrorString string="Error: set [subnetName] option [number] to [value] requires 5 arguments"
+var subnetSetTooManyArgErrorString string="Error: set [subnetName] option [number] to [value] requires 5 arguments"
+var subnetSetIntFailureErrorString string="Error: 6tl could not be read as a number"
+var subnetSetTo66 string="66\n"
+var subnetSetToNull string="null\n"
+
+var subnetGetNoArgErrorString string="Error: set [subnetName] option [number] requires 3 arguments"
+var subnetGetTooManyArgErrorString string="Error: set [subnetName] option [number] requires 3 arguments"
+var subnetGetTo66 string="Option 6: 66"
+var subnetGetToNull string="Option 2: null"
+
 func TestSubnetCli(t *testing.T) {
 	tests := []CliTest{
 		CliTest{true, false, []string{"subnets"}, noStdinString, "Access CLI commands relating to subnets\n", ""},
@@ -321,8 +358,55 @@ func TestSubnetCli(t *testing.T) {
 		CliTest{false, false, []string{"subnets", "update", "john", "-"}, subnetUpdateInputString + "\n", subnetUpdateJohnString, noErrorString},
 		CliTest{false, false, []string{"subnets", "show", "john"}, noStdinString, subnetUpdateJohnString, noErrorString},
 
+
+
+
+ 
+    CliTest{true,true, []string{"subnets", "range"}, noStdinString,noContentString,subnetRangeNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "range", "john", "1.24.36.7", "1.24.36.16","1.24.36.16"}, noStdinString,noContentString,subnetRangeTooManyArgErrorString},
+    CliTest{false,false,[]string{"subnets", "range", "john", "1.24.36.7", "1.24.36.16"},noStdinString,subnetRangeIPSuccessString,noErrorString},
+    CliTest{false,true,[]string{"subnets", "range", "john", "777.98.42.1234", "1.24.36.16"},noStdinString,noContentString,subnetRangeIPFailureString},
+    
+    CliTest{true,true, []string{"subnets", "subnet"}, noStdinString,noContentString,subnetSubnetNoArgErrorString}
+    CliTest{false,true, []string{"subnets", "subnet", "john", "june", "1.24.36.16"}, noStdinString,noContentString,subnetSubnetTooManyArgErrorString},
+    CliTest{false,false,[]string{"subnets", "subnet", "john", "10.0.0.0/24"},noStdinString,subnetSubnetCIDRSuccessString,noErrorString},
+    CliTest{false,true,[]string{"subnets","subnet","john","1111.11.2223.544/66666"},noStdinString,noContentString,subnetSubnetCIDRFailureString},
+
+    CliTest{true,true, []string{"subnets", "strategy"}, noStdinString,noContentString,subnetStrategyNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "strategy", "john", "june", "a3:b3:51:66:7e:11"}, noStdinString,noContentString,subnetStrategyTooManyArgErrorString},
+    CliTest{false,false,[]string{"subnets", "strategy", "john", "a3:b3:51:66:7e:11"}noStdinString,subnetStrategyMacSuccessString,noErrorString},
+    CliTest{false,true,[]string{"subnets", "strategy", "john", "t5:44:llll:b"},noStdinString,noContentString,}
+
+    CliTest{true,true, []string{"subnets", "nextserver"}, noStdinString,noContentString,subnetNextserverNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "nextserver", "john", "june", "1.24.36.16"}, noStdinString,noContentString,subnetNextserverTooManyArgErrorString},
+    CliTest{false,false,[]string{"subnets", "nextserver", "john", "1.24.36.16"},noStdinString,subnetNextserverIPSuccess,noErrorString},
+    CliTest{false,false,[]string{"subnets", "nextserver", "john", "1.1.999.999"},noStdinString,noContentString,subnetNextserverIPFailure},
+
+    CliTest{true,true, []string{"subnets", "leasetimes"}, noStdinString,noContentString,subnetLeasetimesNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "leasetimes", "john", "june", "32","55"}, noStdinString,noContentString,subnetLeasetimesTooManyArgErrorString},
+    CliTest{false,false, []string{"subnets", "leasetimes", "john", "32","55"}, noStdinString,subnetLeasetimesSuccessString,noErrorString},
+    CliTest{false,true, []string{"subnets", "leasetimes", "john", "4x5","55"}, noStdinString,noContentString,subnetLeasetimesIntFailureString},
+    
+    CliTest{true,true, []string{"subnets", "set"},noStdinString,noContentString,subnetSetNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "set", "john", "option", "45", "to","34", "77"},noStdinString,noContentString,subnetSetTooManyArgErrorString},
+    CliTest{false,true, []string{"subnets", "get"},noStdinString,noContentString,subnetGetNoArgErrorString},
+    CliTest{false,true, []string{"subnets", "get","john","option","45", "77"},noStdinString,noContentString,subnetGetTooManyArgErrorString},
+    CliTest{false,true, []string{"subnets", "set", "john","option","6tl","to","66"},noStdinString,noContentString,subnetSetIntFailureErrorString},
+    CliTest{false,false, []string{"subnets", "set", "john","option","6","to","66"},noStdinString,subnetSetTo66,noErrorString},
+    CliTest{false,false, []string{"subnets", "get", "john","option","6"},noStdinString,subnetGetTo66,noErrorString},
+    CliTest{false,false, []string{"subnets", "set", "john","option","2","to","null"},noStdinString,subnetSetToNull,noErrorString},
+    CliTest{false,false, []string{"subnets", "get", "john","option","2"},noStdinString,subnetGetToNull,noErrorString},
+    
+
+//End of Helpers
+
 		CliTest{false, false, []string{"subnets", "destroy", "john"}, noStdinString, subnetDestroyJohnString, noErrorString},
 		CliTest{false, false, []string{"subnets", "list"}, noStdinString, subnetDefaultListString, noErrorString},
+
+
+
+
+
 	}
 
 	for _, test := range tests {
