@@ -220,7 +220,12 @@ func addSubnetCommands() (res *cobra.Command) {
 				return e
 			}
 			sub:=d.Payload
-
+			
+			_,e=net.ParseMac(MACAddress)
+			if e!=nil{
+				return fmt.Errorf("%v is not a valid MAC address", MACAddress)
+			}
+			
 			sub.Strategy = &MACAddress
 
 			_,e= session.Subnets.PutSubnet(subnets.NewPutSubnetParams().WithName(subName).WithBody(sub), basicAuth)
