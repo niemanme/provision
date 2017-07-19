@@ -271,6 +271,7 @@ var subnetSubnetCIDRFailureString="Error: 1111.11.2223.544/66666 is not a valid 
 var subnetStrategyNoArgErrorString string ="Error: subnet strategy [subnetName] [MAC] requires 2 arguments"
 var subnetStrategyTooManyArgErrorString string ="Error: subnet strategy [subnetName] [MAC] requires 2 arguments"
 var subnetStrategyMacSuccessString string ="a3:b3:51:66:7e:11\n"
+var subnetStrategyMacFailureErrorString string = "t5:44:llll:b is not a valid MAC address"
 
 var subnetNextserverNoArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
 var subnetNextserverTooManyArgErrorString string ="Error: subnet nextserver [subnetName] [IP] requires 2 arguments"
@@ -367,7 +368,7 @@ func TestSubnetCli(t *testing.T) {
     CliTest{false,false,[]string{"subnets", "range", "john", "1.24.36.7", "1.24.36.16"},noStdinString,subnetRangeIPSuccessString,noErrorString},
     CliTest{false,true,[]string{"subnets", "range", "john", "777.98.42.1234", "1.24.36.16"},noStdinString,noContentString,subnetRangeIPFailureString},
     
-    CliTest{true,true, []string{"subnets", "subnet"}, noStdinString,noContentString,subnetSubnetNoArgErrorString}
+    CliTest{true,true, []string{"subnets", "subnet"}, noStdinString,noContentString,subnetSubnetNoArgErrorString},
     CliTest{false,true, []string{"subnets", "subnet", "john", "june", "1.24.36.16"}, noStdinString,noContentString,subnetSubnetTooManyArgErrorString},
     CliTest{false,false,[]string{"subnets", "subnet", "john", "10.0.0.0/24"},noStdinString,subnetSubnetCIDRSuccessString,noErrorString},
     CliTest{false,true,[]string{"subnets","subnet","john","1111.11.2223.544/66666"},noStdinString,noContentString,subnetSubnetCIDRFailureString},
