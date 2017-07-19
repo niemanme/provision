@@ -376,7 +376,7 @@ func TestSubnetCli(t *testing.T) {
    	 CliTest{true,true, []string{"subnets", "strategy"}, noStdinString,noContentString,subnetStrategyNoArgErrorString},
   	 CliTest{false,true, []string{"subnets", "strategy", "john", "june", "a3:b3:51:66:7e:11"}, noStdinString,noContentString,subnetStrategyTooManyArgErrorString},
   	 CliTest{false,false,[]string{"subnets", "strategy", "john", "a3:b3:51:66:7e:11"},noStdinString,subnetStrategyMacSuccessString,noErrorString},
-  	 CliTest{false,true,[]string{"subnets", "strategy", "john", "t5:44:llll:b"},noStdinString,noContentString,}
+  	 CliTest{false,true,[]string{"subnets", "strategy", "john", "t5:44:llll:b"},noStdinString,noContentString,subnetStrategyMacFailureErrorString}
 
   	 CliTest{true,true, []string{"subnets", "nextserver"}, noStdinString,noContentString,subnetNextserverNoArgErrorString},
   	 CliTest{false,true, []string{"subnets", "nextserver", "john", "june", "1.24.36.16"}, noStdinString,noContentString,subnetNextserverTooManyArgErrorString},
