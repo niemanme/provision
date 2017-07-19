@@ -221,7 +221,7 @@ func addSubnetCommands() (res *cobra.Command) {
 			}
 			sub:=d.Payload
 			
-			_,e=net.ParseMac(MACAddress)
+			_,e=net.ParseMAC(MACAddress)
 			if e!=nil{
 				return fmt.Errorf("%v is not a valid MAC address", MACAddress)
 			}
