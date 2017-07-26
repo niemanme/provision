@@ -130,7 +130,7 @@ func addSubnetCommands() (res *cobra.Command) {
 		Long:  `Helper function to set the range of a given subnet.`,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) != 3 {
-				return fmt.Errorf("%v requires 3 arguments", c.UseLine())
+				return fmt.Errorf("%s requires 3 arguments", c.UseLine())
 			}
 			dumpUsage=false
 			subName :=args[0]
@@ -144,15 +144,15 @@ func addSubnetCommands() (res *cobra.Command) {
 			sub:=d.Payload
 
 			var IPfirst strfmt.IPv4
-			e=IPfirst.Scan(EndAddr)
+			e=IPfirst.Scan(StartAddr)
 			if e != nil {
-				return fmt.Errorf("%v is not a valid IPv4", StartAddr)
+				return fmt.Errorf("%s is not a valid IPv4", StartAddr)
 			}
 
 			var IPlast strfmt.IPv4
 			e=IPlast.Scan(EndAddr)
 			if e != nil {
-				return fmt.Errorf("%v is not a valid IPv4", EndAddr)
+				return fmt.Errorf("%s is not a valid IPv4", EndAddr)
 			}
 
 			sub.ActiveStart = &IPfirst
@@ -161,7 +161,7 @@ func addSubnetCommands() (res *cobra.Command) {
 			if e != nil {
 				return generateError(e, "Failed to post updated Subnet %v: %v", singularName, subName)
 			} 
-			fmt.Printf("startIP: %v\nendIP: %v\n",*sub.ActiveStart,*sub.ActiveEnd)
+			fmt.Printf("startIP: %s\nendIP: %s\n",*sub.ActiveStart,*sub.ActiveEnd)
 			return nil
 			
 		},
@@ -174,7 +174,7 @@ func addSubnetCommands() (res *cobra.Command) {
 		Long:  `Helper function to set the CIDR of a given subnet.`,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) != 2 {
-				return fmt.Errorf("%v requires 2 arguments", c.UseLine())
+				return fmt.Errorf("%s requires 2 arguments", c.UseLine())
 			}
 			dumpUsage=false
 			subName:=args[0]
@@ -188,15 +188,15 @@ func addSubnetCommands() (res *cobra.Command) {
 
 			_, _, e2:=net.ParseCIDR(CIDR)
 			if e2!=nil{
-				return	fmt.Errorf("%v is not a valid subnet CIDR", CIDR)
+				return	fmt.Errorf("%s is not a valid subnet CIDR", CIDR)
 
 			}
 			sub.Subnet = &CIDR
 			_,e= session.Subnets.PutSubnet(subnets.NewPutSubnetParams().WithName(subName).WithBody(sub), basicAuth)
 			if e != nil {
-				return generateError(e, "Failed to post updated Subnet %v: %v", singularName, subName)
+				return generateError(e, "Failed to post updated Subnet %s: %s", singularName, subName)
 			} 
-			fmt.Printf("%v\n",*sub.Subnet)
+			fmt.Printf("%s\n",*sub.Subnet)
 			return nil
 			
 			
@@ -209,7 +209,7 @@ func addSubnetCommands() (res *cobra.Command) {
 		Long:  `Helper function to get the range of a given subnet.`,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) != 2 {
-				return fmt.Errorf("%v requires 2 arguments", c.UseLine())
+				return fmt.Errorf("%s requires 2 arguments", c.UseLine())
 			}
 			dumpUsage=false
 			subName:=args[0]
@@ -223,14 +223,14 @@ func addSubnetCommands() (res *cobra.Command) {
 			
 			_,e=net.ParseMAC(MACAddress)
 			if e!=nil{
-				return fmt.Errorf("%v is not a valid MAC address", MACAddress)
+				return fmt.Errorf("%s is not a valid MAC address", MACAddress)
 			}
 			
 			sub.Strategy = &MACAddress
 
 			_,e= session.Subnets.PutSubnet(subnets.NewPutSubnetParams().WithName(subName).WithBody(sub), basicAuth)
 			if e != nil {
-				return generateError(e, "Failed to post updated Subnet %v: %v", singularName, subName)
+				return generateError(e, "Failed to post updated Subnet %s: %s", singularName, subName)
 			} 
 
 			fmt.Printf("%v\n",*sub.Strategy)
@@ -358,7 +358,7 @@ func addSubnetCommands() (res *cobra.Command) {
 	commands = append(commands, &cobra.Command{
 		Use:   "set [subnetName] option [number] to [value]",
 		Short: fmt.Sprintf("Set the given subnet's dhcpOption to a value"),
-		Long:  `Helper function that sets the specified dhcpOption from a given subnet to a value. You cannot add an option.`,
+		Long:  `Helper function that sets the specified dhcpOption from a given subnet to a value. If an option does not exist yet, it adds a new option`,
 		RunE: func(c *cobra.Command, args []string) error {
 			if len(args) != 5 {
 				return fmt.Errorf("%v requires 5 arguments", c.UseLine())
@@ -383,7 +383,11 @@ func addSubnetCommands() (res *cobra.Command) {
 			
 
 			if changeVal>=len(sub.Options){
-				return fmt.Errorf("option %v does not exist",changeVal)
+				for i:=changeVal-len(sub.Options); i>=0; i--{
+					newOption:= new(models.DhcpOption)
+					sub.Options=append(sub.Options,newOption)
+
+				}
 			}
 
 			sub.Options[changeVal]=&models.DhcpOption{
@@ -395,7 +399,7 @@ func addSubnetCommands() (res *cobra.Command) {
 				return generateError(e, "Failed to post updated Subnet %v: %v", singularName, subName)
 			} 
 
-			fmt.Printf("%v\n",*sub.Options[changeVal])
+			fmt.Printf("%v to %v\n",changeVal,*sub.Options[changeVal].Value)
 			return nil
 		},
 	})
@@ -424,10 +428,10 @@ func addSubnetCommands() (res *cobra.Command) {
 			}
 
 			sub:=d.Payload
-			if len(sub.Options)<=getVal{
+			if len(sub.Options)<= getVal{
 				return fmt.Errorf("option %v does not exist",getVal)
 			}
-			fmt.Printf("Option %v: %v",getVal,*sub.Options[getVal])
+			fmt.Printf("Option %v: %v",getVal,*sub.Options[getVal].Value)
 			return nil
 
 		},
